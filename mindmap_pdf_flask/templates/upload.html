@@ -1,0 +1,21 @@
+<!-- templates/upload.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Upload a PDF</h2>
+<div class="row">
+    <div class="col-md-6">
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="pdf_file" class="form-label">Choose PDF</label>
+                <input class="form-control" type="file" id="pdf_file" name="pdf_file" accept="application/pdf" required>
+            </div>
+            <button type="submit" class="btn btn-success">Upload</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

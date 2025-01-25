@@ -1,0 +1,48 @@
+<!-- templates/viewer.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<h2>PDF Text Viewer & Mind Map</h2>
+<div class="row">
+    <div class="col-md-6">
+        <h4>Uploaded PDF</h4>
+        {% if pdf_url %}
+            <div class="mb-3">
+                <iframe src="{{ pdf_url }}" width="100%" height="500px"></iframe>
+            </div>
+        {% else %}
+            <p>No PDF uploaded.</p>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <h4>Extracted PDF Text</h4>
+        <p>Select text with your mouse, then add an explanation.</p>
+        <div class="border p-2" style="height: 400px; overflow-y: auto;" id="pdf-text-container">
+            {{ pdf_text | nl2br }}
+        </div>
+
+        <div class="my-3">
+            <label for="selected-phrase" class="form-label">Selected Text:</label>
+            <input type="text" id="selected-phrase" class="form-control" readonly>
+            <label for="explanation-text" class="form-label">Explanation:</label>
+            <textarea id="explanation-text" class="form-control" rows="3"></textarea>
+            <button class="btn btn-primary mt-2" id="add-explanation-btn">Add Explanation</button>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h4>Mind Map</h4>
+        <div id="jsmind-container" style="width:100%; height:500px; border:1px solid #ccc;"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Pass the PDF text to JavaScript
+    const pdfText = `{{ pdf_text | escapejs }}`;
+</script>
+{% endblock %}
