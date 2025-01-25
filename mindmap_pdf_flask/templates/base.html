@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="fixed-menu navbar navbar-expand-lg navbar-dark bg-dark"">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('index') }}">MindMap PDF</a>
             <div class="collapse navbar-collapse">
@@ -26,6 +26,7 @@
             </div>
         </div>
     </nav>
+    <div class="fixed-menu-spacer"></div>
     <div class="container py-4">
         {% with messages = get_flashed_messages() %}
             {% if messages %}

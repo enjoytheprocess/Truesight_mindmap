@@ -2,7 +2,7 @@
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
-from pdfminer.high_level import extract_text
+from pdfminer.high_level import extract_text, LAParams
 from werkzeug.utils import secure_filename
 import os
 
@@ -51,7 +51,9 @@ def upload():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
             # Extract text from PDF
-            text = extract_text(filepath)
+            custom_params = LAParams()
+            custom_params.word_margin = 0.2
+            text = extract_text(filepath, laparams=custom_params)
             # Save extracted text to a file associated with the uploaded PDF
             text_filename = f"{os.path.splitext(filename)[0]}_extracted.txt"
             text_filepath = os.path.join(app.config['UPLOAD_FOLDER'], text_filename)
@@ -101,10 +103,9 @@ def get_explanations():
     explanations = Explanation.query.all()
     return jsonify([exp.to_dict() for exp in explanations])
 
-#copilot code 1
-@app.template_filter('nl2br')
-def nl2br(value):
-    return value.replace('\n', '<br>\n')
+# @app.template_filter('nl2br')
+# def nl2br(value):
+#     return value.replace('\n', '\n')
 
 @app.template_filter('escapejs')
 def escapejs(value):
@@ -129,4 +130,4 @@ def cleanup():
             print(f"Failed to delete {file_path}. Reason: {e}")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5050)
