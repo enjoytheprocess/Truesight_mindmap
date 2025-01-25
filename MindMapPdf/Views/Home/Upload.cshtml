@@ -1,0 +1,28 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Upload a PDF</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
+        <form asp-action="Upload" asp-controller="Home" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="pdfFile" class="form-label">Choose PDF</label>
+                <input type="file" class="form-control" id="pdfFile" name="pdfFile" accept=".pdf" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+    </div>
+</div>
+
