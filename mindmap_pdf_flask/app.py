@@ -101,6 +101,15 @@ def get_explanations():
     explanations = Explanation.query.all()
     return jsonify([exp.to_dict() for exp in explanations])
 
+#copilot code 1
+@app.template_filter('nl2br')
+def nl2br(value):
+    return value.replace('\n', '<br>\n')
+
+@app.template_filter('escapejs')
+def escapejs(value):
+    return value.replace("'", "\\'").replace('"', '\\"')
+
 # Optional: Cleanup command to delete uploaded files
 import click
 from flask.cli import with_appcontext

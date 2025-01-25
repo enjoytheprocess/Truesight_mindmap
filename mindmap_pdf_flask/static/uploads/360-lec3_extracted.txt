@@ -1,0 +1,474 @@
+Notes for Lecture 3 (W. 2025 week 1, part 3):
+More stepping, more Haskell
+
+Jana Dunﬁeld
+
+December 31, 2024
+
+Code for this lecture is in lec3.hs.
+If you haven’t yet, please install GHC. If you have problems, ask on Piazza. It may be easier to
+
+install Hugs, which is similar (but the error messages will be different).
+
+1 Warm-up
+
+Download the ﬁle lec3.hs and try:
+
+1. Start GHCi.
+
+2. Load the ﬁle (use the :load command).
+
+3. Enter
+
+triple 2
+
+and make sure you get 6.
+
+4. Edit the ﬁle to add the following function:
+
+myfun = \w -> not w
+
+5. Typing
+
+will give an error, because we haven’t reloaded the ﬁle.
+
+myfun False
+
+6. Reload the ﬁle. You can do this by giving the same load command again, but it’s easier to
+
+type
+
+7. Try
+
+again.
+
+8. Now try editing the ﬁle to add
+
+something = \f -> f (f False)
+
+:r
+
+myfun False
+
+9. Reload and experiment with something. It may help to ask for the type of something, by
+
+entering
+
+:type something
+
+lec3, Jana Dunﬁeld, CISC 360, W. 2025
+
+1
+
+2024/12/31
+
+§1 Warm-up
+
+2 Preﬁx and inﬁx in Haskell
+
+This section looks like it’s about syntax, but it will also expose you to something that will become
+important later. Don’t expect to understand everything here yet. Try things out and experiment,
+but don’t get stuck—I will explain this more in the next lecture, and in later lectures.
+
+In mathematics (and programming languages), operators that can be written before their ar-
+gument(s) are preﬁx operators. Negation is one such operator: the negation operator − is written
+before its argument (x ∗ 2).
+
+−(x ∗ 2)
+
+Operators that are written between their arguments are inﬁx operators. The multiplication operator
+∗ is an inﬁx operator.
+
+Haskell’s opinion about which operators are preﬁx and inﬁx is mostly in accord with mathemat-
+ical notation. Haskell allows something that isn’t common in math, however: If you want to use
+an inﬁx operator as a preﬁx operator, you can surround it in parentheses. The following will both
+print 7; in the ﬁrst line, + is used in the standard way as an inﬁx operator, and in the second line it
+is (temporarily) used as a preﬁx operator “(+)”:
+
+3 + 4
+
+(+) 3 4
+
+The second line may seem less readable than the ﬁrst; we’re used to writing + between its ar-
+guments, not before. The second line is not why Haskell provides this feature of turning inﬁx
+operators into preﬁx ones. Haskell provides this so we can refer to the addition operator by itself.
+
+If we try to ask for the type of addition like this, we get an error:
+
+Prelude> :type +
+
+<interactive>:1:1: parse error on input ‘+’
+
+If we add parentheses, we don’t get an error:
+
+Prelude> :type (+)
+(+) :: Num a => a -> a -> a
+Prelude>
+
+What we do get needs some explanation, though. This type says: “if a is a numeric type, then if
+you give me one thing of type a, and another thing of type a, I will return something of type a.”
+The “Num a” part means “a is a numeric type” (addition works on several different numeric types,
+not only integers), and the => separates the Num a part from the rest of the type. You can think of
+a -> a -> a as the “actual” type, and the Num a part as some extra information.
+
+I wrote “if you give me one thing of type a, and another thing of type a. . . ” rather than saying
+two things of type a. Does Haskell let us give addition only one argument? Another way to phrase
+the question: Does Haskell let us apply addition to only argument?
+
+We need to use parentheses (writing “2 +” would be a syntax error):
+
+Prelude> (+) 2
+
+lec3, Jana Dunﬁeld, CISC 360, W. 2025
+
+2
+
+2024/12/31
+
+§2 Preﬁx and inﬁx in Haskell
+
+<interactive>:7:1:
+
+No instance for (Show (a0 -> a0))
+
+(maybe you haven’t applied enough arguments to a function?)
+arising from a use of ‘print’
+
+In the first argument of ‘print’, namely ‘it’
+In a stmt of an interactive GHCi command: print it
+
+This is also an error, but the message does not say that GHC can’t apply (+) to one argument;
+it’s saying GHC can’t print the result of doing that! (So the “(maybe you haven’t applied enough
+arguments to a function?)” part is somewhat misleading.)
+
+When we see an error message that says “No instance for (Show . . . )”, GHC is saying that
+it did what we asked—it computed the result of (+) 2—but it can’t print the result. GHC is a
+read-evaluate-print loop: if it complains about not being able to print, it must have been able to
+evaluate.
+
+To try to understand what’s going on, we can ask GHC for the type of (+) 2. GHC will not
+evaluate expressions that don’t have a type; we know that GHC evaluated, so there must be such
+sa type.
+
+Prelude> :type (+) 2
+(+) 2 :: Num a => a -> a
+
+If we remove the Num a part, we get a -> a, which is a function that expects an a and returns an
+
+a.
+
+Prelude> (+) 2 3
+5
+
+(No, I don’t enjoy GHC’s error messages either.)
+
+3 Stepping: Rule for function application
+
+(From earlier lecture)
+
+If f is a function,
+and the bound variable of f is x,
+and the body of f is body, then
+
+f arg ⇒ body with arg substituted for x
+
+3.1 Stepping with function deﬁnitions
+
+The rule can also be used with function deﬁnitions.
+
+triple z = 3 * z
+
+triple 2
+
+⇒ 3 * 2
+⇒ 6
+
+by function application
+by arithmetic
+
+lec3, Jana Dunﬁeld, CISC 360, W. 2025
+
+3
+
+2024/12/31
+
+§3 Stepping: Rule for function application
+
+Going into more detail for the ﬁrst step:
+
+We are instantiating the above rule for function application as follows:
+
+1. the function f is triple
+
+2. the bound variable x is z
+
+3. the body of f (that is, the body of triple) is 3 * z
+
+4. the argument arg is 2
+
+Writing out the rule again (generally not something I’d ask you to do; done here to illustrate):
+
+If triple is a function,
+and the bound variable of triple is z,
+and the body of triple is 3 * z, then
+
+triple 2
+
+⇒ 3 * z with 2 substituted for z
+= 3 * 2
+
+Two different things just happened: First, we instantiated the function assignment rule and wrote
+out “⇒ 3 * z with 2 substituted for z”. Second, we wrote the line “= 3 * 2”. Only the ﬁrst of
+these is a “step”; in the second, we observed that
+
+is equal to
+
+3 * z with 2 substituted for z
+
+3 * 2
+
+which is not a step; it is an observation about what “substituted” means.
+
+In fact, there is no rule that says
+
+steps to
+
+3 * z with 2 substituted for z
+
+3 * 2
+
+Since these two things are equal, such a rule would mean that
+
+steps to
+
+3 * 2
+
+3 * 2
+
+which it does not. (It is very rare for an expression to step to itself, and 3 * 2 certainly does not
+step to itself. It steps to 6.)
+
+lec3, Jana Dunﬁeld, CISC 360, W. 2025
+
+4
+
+2024/12/31
+
+§3 Stepping: Rule for function application
+
+3.2 Recursive functions
+
+The rule for function application also works for recursive functions, like diag (in lec3.hs):
+
+diag n = if n == 0 then 0 else n + diag (n - 1)
+
+This is a recursive function, since the “else” branch calls diag itself.
+
+I like this example because it has a nice geometric property (switching to mathematical notation
+
+for a moment):
+
+diag(3) = 3 + diag(2)
+
+= 3 + 2 + diag(1)
+
+= 3 + 2 + 1 + diag(0)
+
+= 3 + 2 + 1 + 0
+
+= 6
+
+This can be visualized as
+
+3 + 2 + 1 + 0
+
+X
+^
+contributed by diag(1)
+
+X
+X
+^
+|
+|
+contributed by diag(2)
+
+X
+X
+X
+^
+|
+|
+|
+|
+contributed by diag(3)
+
+which is a triangle, suggesting that the result of diag(n) is roughly n2
+is consistent with diag(3) = 6 = 3·4
+
+2 = 12
+
+2 .)
+
+2 . (It is actually n·(n+1)
+
+2
+
+, which
+
+Getting back on topic, the bound variable of diag is n, and the body is everything after the =:
+
+diag n = if n == 0 then 0 else n + diag (n - 1)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+^
+
+bound var.
+
+body
+
+Let’s start with a non-recursive case:
+
+diag 0
+
+⇒ if 0 == 0 then 0 else 0 + diag (0 - 1)
+⇒ if True then 0 else 0 + diag (0 - 1)
+⇒ 0
+
+by function application
+by equality rule (Section 5)
+by if-then-else rule
+
+Exercise 1.
+
+In the ﬁrst step above, identify f, body, and arg, and write it out in full detail
+
+(writing “. . . with . . . substituted . . . = . . . ”) as we did for triple.
+
+lec3, Jana Dunﬁeld, CISC 360, W. 2025
+
+5
+
+2024/12/31
+
+§3 Stepping: Rule for function application
+
+Now we can do a non-recursive case:
+
+diag 1
+
+⇒ if 1 == 0 then 0 else 1 + diag (1 - 1)
+⇒ if False then 0 else 1 + diag (1 - 1)
+⇒ 1 + diag (1 - 1)
+⇒ 1 + diag (0)
+⇒ 1 + 0
+⇒ 1
+
+by function application
+by equality rule (Section 5)
+by if-then-else rule
+by arithmetic
+above, we found diag 0 ⇒ . . . ⇒ 0
+by arithmetic
+
+Not too bad? I have some bad news and some good news.
+
+The bad news is that this is not what Haskell actually does.
+The good news is that (for the next few weeks, at least) it doesn’t matter.
+But, if you’re curious, this is what Haskell actually does:
+
+diag 1
+
+⇒ if 1 == 0 then 0 else 1 + diag (1 - 1)
+⇒ if False then 0 else 1 + diag (1 - 1)
+⇒ 1 + diag (1 - 1)
+⇒ 1 + (if (1 - 1) == 0 then 0 else 1 + diag ((1 - 1) - 1))
+⇒ 1 + (if 0 == 0 then 0 else 1 + diag (0 - 1))
+⇒ 1 + (if True then 0 else 1 + diag (0 - 1))
+⇒ 1 + 0
+⇒ 1
+
+by function application
+by equality rule (Section 5)
+by if-then-else rule
+by function application
+by arithmetic
+by equality rule
+by if-then-else rule
+by arithmetic
+
+Haskell defers the subtraction (1 - 1) until after the function application—but once the subtrac-
+tion is done, the (1 - 1) in the else branch is also done! This is lazy evaluation; until further
+notice, we will ignore this. I would accept either sequence of steps as a correct answer.
+
+4 Stepping: Rule for if-then-else
+
+This is really two rules, but we won’t worry about that.
+
+if True then then-part else else-part
+
+⇒ then-part
+
+if False then then-part else else-part
+
+⇒ else-part
+
+Question: Do we have to memorize this rule (or the other rules)? Do they have to be called
+
+“then-part” and “else-part”?
+
+In general, you don’t have to memorize any of the rules (but you should understand what they
+do); you certainly don’t need to memorize names like “then-part” (which are arbitrary; it would be
+traditional to call it “e1”).
+
+If I ask a quiz question, and it requires that you justify each step of an evaluation (by writing “by
+arithmetic”, “by fun. app.”, etc.), then I will expect you to identify the rule you are using—but I will
+give you all the necessary rules. What I don’t want to see is a justiﬁcation that could be a “guess”,
+like “by Haskell” (which could mean anything) or “by conditionals” (unless I decide to call this rule
+
+lec3, Jana Dunﬁeld, CISC 360, W. 2025
+
+6
+
+2024/12/31
+
+§4 Stepping: Rule for if-then-else
+
+“conditionals”). Being able to make reasonable guesses (while often an effective test-taking skill)
+doesn’t show that you understand the material.
+
+5 Stepping: Equality rule (for the == operator)
+
+If e is a number, then
+
+If e1 and e2 are numbers,
+and e1 is not equal to e2 then
+
+e == e ⇒ True
+
+e1 == e2 ⇒ False
+
+This isn’t as simple as it seemed during the lecture! Just saying
+
+x == x ⇒ True
+
+will work for calling diag, but promises too much—Haskell only allows you to compare certain
+kinds of things with ==. You can’t compare functions, for example:
+
+doesn’t work (it will give you a charming type error). Even the “obvious”
+
+(\z -> z + 1) == (\z -> z + 1)
+
+triple == triple
+
+is not allowed. So in completing these notes, I added a condition to the rule: e has to be a number.
+(Actually, == works for some non-numbers, but the explanation wouldn’t make sense to you yet,
+and right now we just need a stepping rule that lets us compare numbers.)
+
+lec3, Jana Dunﬁeld, CISC 360, W. 2025
+
+7
+
+2024/12/31
+
+
