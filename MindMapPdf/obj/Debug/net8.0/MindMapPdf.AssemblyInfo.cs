@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MindMapPdf")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+509b9d6f0c4a9b408106ce9bbad261a875d9129d")]
 [assembly: System.Reflection.AssemblyProductAttribute("MindMapPdf")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MindMapPdf")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
