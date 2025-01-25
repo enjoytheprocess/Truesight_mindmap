@@ -4,23 +4,21 @@
 
 {% block content %}
 <h2>PDF Text Viewer & Mind Map</h2>
-<div class="row">
-    <div class="col-md-6">
+<div class="viewer-row">
+    <div class="viewer-col">
         <h4>Uploaded PDF</h4>
         {% if pdf_url %}
-            <div class="mb-3">
-                <iframe src="{{ pdf_url }}" width="100%" height="500px"></iframe>
+            <div class="pdf-div">
+                <iframe src="{{pdf_url}}#toolbar=0" width="100%" height="100%" frameBorder="0""></iframe>
             </div>
         {% else %}
             <p>No PDF uploaded.</p>
         {% endif %}
     </div>
-    <div class="col-md-6">
+    <div class="viewer-col">
         <h4>Extracted PDF Text</h4>
         <p>Select text with your mouse, then add an explanation.</p>
-        <div class="border p-2" style="height: 400px; overflow-y: auto;" id="pdf-text-container">
-            {{ pdf_text | nl2br }}
-        </div>
+        <div class="border p-2" style="height: 400px; overflow-y: auto;" id="pdf-text-container">{{pdf_text}}</div>
 
         <div class="my-3">
             <label for="selected-phrase" class="form-label">Selected Text:</label>
