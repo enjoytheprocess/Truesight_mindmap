@@ -2,3 +2,4 @@ mindmap_pdf_flask/venv
 mindmap_pdf_flask/__pycache__
 mindmap_pdf_flask/static/uploads/*
 .idea 
+*.DS_Store

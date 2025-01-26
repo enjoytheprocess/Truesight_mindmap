@@ -1,0 +1,200 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 1920px;
+                 height: 1080px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "black"}, "id": "Medievalism in Video Games", "label": "Medievalism in Video Games\n\nThe study of how medievalist music is used in video games to evoke emotional responses, reflecting contemporary\n\n notions of the medieval past.", "physics": false, "shape": "box", "size": 169.2, "x": -74, "y": 173}, {"color": "#97c2fc", "font": {"color": "black"}, "id": "Emotional States in Music", "label": "Emotional States in Music\n\nAnalysis of how musical tropes in video games convey a range of emotions, from peace and tranquility to\n\n danger and death, using specific examples from games.", "physics": false, "shape": "box", "size": 188.4, "x": 127, "y": -73}, {"color": "#97c2fc", "font": {"color": "black"}, "id": "Ludomusicology", "label": "Ludomusicology\n\nA discipline focused on the study of music in video games, examining how players interact with and shape\n\n the game\u0027s sonic environment.", "physics": false, "shape": "box", "size": 160.79999999999998, "x": 258, "y": -200}, {"color": "#97c2fc", "font": {"color": "black"}, "id": "Musical Tropes", "label": "Musical Tropes\n\nThree significant medievalist musical tropes explored: the church bell, pipe organ, and wordless voice,\n\n each conveying opposite emotional states.", "physics": false, "shape": "box", "size": 174.0, "x": -307, "y": 71}, {"color": "#97c2fc", "font": {"color": "black"}, "id": "Cultural Reception of Medievalism", "label": "Cultural Reception of Medievalism\n\nExamines how historical perceptions of the medieval period influence modern interpretations in media such\n\n as video games, often tied to stereotypes.", "physics": false, "shape": "box", "size": 177.6, "x": 319, "y": 217}]);
+                  edges = new vis.DataSet([{"from": "Medievalism in Video Games", "to": "Emotional States in Music"}, {"from": "Emotional States in Music", "to": "Musical Tropes"}, {"from": "Ludomusicology", "to": "Musical Tropes"}, {"from": "Cultural Reception of Medievalism", "to": "Medievalism in Video Games"}, {"from": "Cultural Reception of Medievalism", "to": "Musical Tropes"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": false}, "interaction": {"dragNodes": true, "hover": true}, "manipulation": {"enabled": true}, "nodes": {"borderWidth": 2, "shape": "box", "font": {"size": 12}, "margin": 8}, "edges": {"smooth": {"type": "dynamic"}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    
+    <script type="text/javascript">
+        var editMode = false;
+
+        function toggleEditMode() {
+            editMode = !editMode;
+            document.getElementById("editButton").innerText = editMode ? "Disable Text Edit" : "Enable Text Edit";
+        }
+
+        function attachEditEvent(network) {
+            network.on("click", function(params) {
+                if (editMode && params.nodes.length > 0) {
+                    var nodeId = params.nodes[0];
+                    var nodeLabel = network.body.data.nodes.get(nodeId).label;
+
+                    var labelParts = nodeLabel.split("\n\n");
+                    var currentTitle = labelParts.length > 0 ? labelParts[0] : nodeLabel;
+                    var currentDescription = labelParts.length > 1 ? labelParts[1] : "";
+
+                    var newTitle = prompt("Edit topic title:", currentTitle);
+                    if (newTitle !== null && newTitle.trim() !== "") {
+                        var newDescription = prompt("Edit description:", currentDescription);
+                        if (newDescription !== null) {
+                            var newLabel = newTitle + "\n\n" + newDescription;
+                            network.body.data.nodes.update({id: nodeId, label: newLabel});
+                        }
+                    }
+                }
+            });
+        }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        attachEditEvent(network);
+
+        // Button container for alignment
+        var buttonContainer = document.createElement("div");
+        buttonContainer.style.position = "absolute";
+        buttonContainer.style.top = "5vh";  // Adjusted down for alignment
+        buttonContainer.style.right = "1vh";
+        buttonContainer.style.display = "flex";
+        buttonContainer.style.alignItems = "center";
+        buttonContainer.style.gap = "1vh";
+        buttonContainer.style.zIndex = "100";
+
+        // "Edit Mode" button (styled like built-in buttons)
+        var editButton = document.createElement("button");
+        editButton.innerHTML = "Enable Text Edit";  // Default state
+        editButton.id = "editButton";
+        editButton.style.background = "white";
+        editButton.style.border = "2px solid #4CAF50";
+        editButton.style.color = "#4CAF50";
+        editButton.style.padding = "6px 12px";
+        editButton.style.borderRadius = "20px";
+        editButton.style.fontSize = "14px";
+        editButton.style.cursor = "pointer";
+        editButton.style.display = "flex";
+        editButton.style.alignItems = "center";
+        editButton.style.fontWeight = "bold";
+        editButton.onmouseover = function() { editButton.style.background = "#E8F5E9"; };
+        editButton.onmouseout = function() { editButton.style.background = "white"; };
+        editButton.onclick = toggleEditMode;
+
+        // Add buttons to container
+        buttonContainer.appendChild(editButton);
+
+        // Add container to body
+        document.body.appendChild(buttonContainer);
+        document.body.style.overflow = "hidden";  // Prevent scrolling
+    });
+
+
+
+    </script>
+    </body>
+</html>

@@ -1,10 +1,18 @@
 # app.py
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from pdfminer.high_level import extract_text, LAParams
 from werkzeug.utils import secure_filename
 import os
+import Testing2
+
+# Testing 2 imports
+import openai
+import time
+import random
+import webbrowser
+from pyvis.network import Network
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'  # Replace with a secure key
@@ -54,6 +62,10 @@ def upload():
             custom_params = LAParams()
             custom_params.word_margin = 0.2
             text = extract_text(filepath, laparams=custom_params)
+
+            # ---
+            make_mind_map(text)
+
             # Save extracted text to a file associated with the uploaded PDF
             text_filename = f"{os.path.splitext(filename)[0]}_extracted.txt"
             text_filepath = os.path.join(app.config['UPLOAD_FOLDER'], text_filename)
@@ -128,6 +140,54 @@ def cleanup():
                 print(f"Deleted: {file_path}")
         except Exception as e:
             print(f"Failed to delete {file_path}. Reason: {e}")
+
+def make_mind_map(user_input):
+    response = openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Consider the following text's (given by the user) main topics, brief descriptions of those topics, and connections between the topics. Create for me two outputs in a code block. The first is a dictionary where the keys are the main topic titles and the values are the descriptions. Keep both brief (the title should be a few words, the description should be a few sentences). The second is a list of tuples where each tuple contains two topics, representing the fact that those topics are connected in some way. In the code, AND THIS IS EXTREMELY IMPORTANT, the dictionary should be called 'dict' and the list of tuples should be called 'tup'. Say NOTHING ELSE, IT IS OF VITAL IMPORTANCE THAT YOU SAY NOTHING ELSE."
+                },
+                {
+                    "role": "user",
+                    "content": user_input
+                }],
+        )
+
+    response_text = response.choices[0].message.content
+    response_lines = response_text.split('\n')
+    dict_start = response_lines.index('```python') + 1
+    dict_end = response_lines.index('```', dict_start)
+    dict_code = '\n'.join(response_lines[dict_start:dict_end])
+    exec(dict_code, globals())
+
+    print("Dictionary:", dict)
+    print("List of Tuples:", tup)
+    
+    # Generate the mind map
+    Testing2.make_mind_map(dict, tup)
+
+    # Define the new path in the "uploads" folder
+    print(os.getcwd())
+    mind_map_folder = os.path.join(os.getcwd(), "static", "mind_map_folder")
+    os.makedirs(mind_map_folder, exist_ok=True)  # Ensure the "uploads" folder exists
+    mind_map_path = os.path.join(mind_map_folder, "mind_map.html")
+
+    # Wait for mind_map.html to be created (max wait: 10 sec)
+    timeout = 10  # Maximum wait time in seconds
+    start_time = time.time()
+
+    while not os.path.exists(mind_map_path):
+        if time.time() - start_time > timeout:
+            return "Error: mind_map.html was not generated in time.", 500
+        time.sleep(0.5)  # Check every 500ms
+
+# Serve files from static/uploads
+@app.route('/uploads/<path:filename>')
+def serve_uploads(filename):
+    uploads_dir = os.path.join(app.root_path, "static", "uploads")  # Correct uploads path
+    return send_from_directory(uploads_dir, filename)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5050)
